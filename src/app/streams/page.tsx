@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { ProductsListing } from "./listing";
+import { StreamsListing } from "./listing";
 
 export default function Page() {
-  return <ProductsListing />;
+  return <StreamsListing />;
 }

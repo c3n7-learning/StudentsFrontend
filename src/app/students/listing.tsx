@@ -40,7 +40,7 @@ import { debounce } from "lodash";
 import { store, useAppSelector } from "@/store/store";
 import { fetchStreams } from "@/store/streamSlice";
 
-export function ProductsListing() {
+export function StudentsListing() {
   const isLoading = useAppSelector(
     (state) => state.streams.streamsStatus === "pending"
   );
