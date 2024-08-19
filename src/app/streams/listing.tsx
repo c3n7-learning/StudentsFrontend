@@ -37,6 +37,8 @@ import {
 import AdminLayout from "@/components/shared/admin-layout";
 import { useEffect, useMemo, useState } from "react";
 import { debounce } from "lodash";
+import { store, useAppSelector } from "@/store/store";
+import { fetchStreams } from "@/store/streamSlice";
 
 interface Product {
   id: string;
@@ -62,70 +64,19 @@ interface QueryResponse {
 }
 
 export function ProductsListing() {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [productList, setProductList] = useState<Product[]>([]);
   const [filteredIds, setFilteredIds] = useState<string[]>([]);
   const [query, setQuery] = useState<string>("");
   const [productStatus, setProductStatus] = useState<string>("");
 
-  useEffect(() => {
-    async function fetcher() {
-      setIsLoading(true);
-      // Fetch the data
-      setIsLoading(false);
-    }
-
-    fetcher();
-  }, []);
-
-  const searchVectorIndex = useMemo(
-    () =>
-      debounce(
-        async (query: string, prefilters?: PreFilter[]): Promise<void> => {
-          setIsLoading(true);
-
-          // Send a filtering-query from here
-
-          setIsLoading(false);
-        },
-        750
-      ),
-    []
+  const isLoading = useAppSelector(
+    (state) => state.streams.streamsStatus === "pending"
   );
+  const streams = useAppSelector((state) => state.streams.streams);
 
   useEffect(() => {
-    if (!query) {
-      setFilteredIds([]);
-      return;
-    }
-
-    const prefilters: PreFilter[] = [];
-
-    if (productStatus && productStatus !== "all")
-      [
-        prefilters.push({
-          field: "product_status",
-          operator: "==",
-          value: productStatus,
-        }),
-      ];
-
-    searchVectorIndex(query, prefilters);
-  }, [query, productStatus, searchVectorIndex]);
-
-  const filteredProducts = useMemo<Product[]>(() => {
-    if (!query || filteredIds.length === 0) {
-      return productList;
-    }
-    const products: Product[] = [];
-
-    filteredIds.forEach((id) => {
-      const product = productList.find((item) => item.id === id);
-      if (product) products.push(product);
-    });
-
-    return products;
-  }, [productList, filteredIds, query]);
+    store.dispatch(fetchStreams());
+  }, []);
 
   return (
     <AdminLayout
@@ -142,7 +93,7 @@ export function ProductsListing() {
         <div className="ml-auto flex items-center gap-2">
           {isLoading && <LoaderCircle className="animate-spin" />}
 
-          <Link href="/admin/streams/edit">
+          <Link href="/streams/edit">
             <Button size="sm" className="h-8 gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -160,38 +111,17 @@ export function ProductsListing() {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="hidden md:table-cell">Status</TableHead>
-                <TableHead className="hidden md:table-cell">Price</TableHead>
-                <TableHead className="hidden md:table-cell whitespace-nowrap">
-                  Total Sales
-                </TableHead>
-                <TableHead className="hidden md:table-cell whitespace-nowrap">
-                  Created at
-                </TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.id}</TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="font-medium">
-                    {product.description}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{product.product_status}</Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell whitespace-nowrap">
-                    Ksh. {product.price}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">25</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    2023-07-12 10:42 AM
-                  </TableCell>
+              {streams.map((stream) => (
+                <TableRow key={stream.id}>
+                  <TableCell className="font-medium">{stream.id}</TableCell>
+                  <TableCell className="font-medium">{stream.name}</TableCell>
+
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

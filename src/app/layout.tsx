@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { BaseLayout } from "./base-layout";
+import { Provider } from "react-redux";
+import { store } from "@/store/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <BaseLayout>{children}</BaseLayout>
+        </TooltipProvider>
       </body>
     </html>
   );
