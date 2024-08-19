@@ -1,41 +1,46 @@
 "use client";
 import { ChevronLeft, LoaderCircle, Save } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { store } from "@/store/store";
-import { saveStream } from "@/store/streamSlice";
+import { store, useAppSelector } from "@/store/store";
+import { fetchStreamDetails, saveStream } from "@/store/streamSlice";
 
 export function CrudForm({ streamId }: { streamId: number }) {
   const [name, setName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const isLoading = useAppSelector(
+    (state) => state.streams.streamDetailsStatus === "pending"
+  );
+  const streamDetails = useAppSelector((state) => state.streams.streamDetails);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (streamId == -1) return;
+
+    store.dispatch(fetchStreamDetails({ id: streamId }));
+  }, [streamId]);
+
+  useEffect(() => {
+    if (streamId == -1) return;
+
+    setName(streamDetails?.name ?? "");
+  }, [streamId, streamDetails]);
 
   async function submit() {
     try {
       setIsSubmitting(true);
 
-      await store.dispatch(saveStream({ name })).unwrap();
+      await store
+        .dispatch(
+          saveStream({ id: streamId == -1 ? undefined : streamId, name })
+        )
+        .unwrap();
 
       router.push("/streams/");
     } catch (error) {
@@ -63,6 +68,7 @@ export function CrudForm({ streamId }: { streamId: number }) {
           {streamId == -1 ? "New Stream" : `Edit Stream #${streamId}`}
         </h1>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
+          {isLoading && <LoaderCircle className="animate-spin" />}
           <Link href="/streams/">
             <Button variant="outline" size="sm">
               Discard

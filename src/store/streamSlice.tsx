@@ -21,6 +21,19 @@ export const fetchStreams = createAsyncThunk(
   }
 );
 
+export const fetchStreamDetails = createAsyncThunk(
+  "streams/fetchStreamDetails",
+  async ({ id }: { id: number }) => {
+    return await fetch(`${API_URL}/api/ClassStreams/${id}`, {
+      headers: {
+        Accept: "application/json",
+      },
+    }).then(async (response) => {
+      return (await response.json()) as ClassStream;
+    });
+  }
+);
+
 export type SaveClassStreamPayload = {
   id?: number;
   name: string;
@@ -36,8 +49,10 @@ export const saveStream = createAsyncThunk(
   "streams/saveStream",
   async ({ id, name }: SaveClassStreamPayload, thunkApi) => {
     let url = `${API_URL}/api/ClassStreams/`;
+    const body: SaveClassStreamPayload = { name };
     if (id) {
-      url += `${id}/`;
+      url += `${id}`;
+      body.id = id;
     }
     return await fetch(url, {
       method: id ? "PUT" : "POST",
@@ -45,7 +60,7 @@ export const saveStream = createAsyncThunk(
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(body),
     }).then(async (response) => {
       let result: SaveClassStreamResponse | null = null;
       if (response.headers.get("content-type") === "application/json") {
@@ -65,11 +80,17 @@ export const saveStream = createAsyncThunk(
 interface StreamSliceState {
   streams: Array<ClassStream>;
   streamsStatus: ThunkStatus;
+
+  streamDetails: ClassStream | null;
+  streamDetailsStatus: ThunkStatus;
 }
 
 const initialState: StreamSliceState = {
   streams: [],
   streamsStatus: "idle",
+
+  streamDetails: null,
+  streamDetailsStatus: "idle",
 };
 
 export const streamSlice = createSlice({
@@ -86,6 +107,17 @@ export const streamSlice = createSlice({
     builder.addCase(fetchStreams.fulfilled, (state, { payload }) => {
       state.streamsStatus = "fulfilled";
       state.streams = payload;
+    });
+
+    builder.addCase(fetchStreamDetails.pending, (state) => {
+      state.streamsStatus = "pending";
+    });
+    builder.addCase(fetchStreamDetails.rejected, (state) => {
+      state.streamsStatus = "rejected";
+    });
+    builder.addCase(fetchStreamDetails.fulfilled, (state, { payload }) => {
+      state.streamsStatus = "fulfilled";
+      state.streamDetails = payload;
     });
   },
 });

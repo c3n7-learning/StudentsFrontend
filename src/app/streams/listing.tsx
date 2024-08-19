@@ -40,29 +40,6 @@ import { debounce } from "lodash";
 import { store, useAppSelector } from "@/store/store";
 import { fetchStreams } from "@/store/streamSlice";
 
-interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  product_status?: string;
-  price?: string;
-}
-
-interface PreFilter {
-  field: string;
-  operator: string;
-  value: string;
-}
-
-interface QueryData {
-  query: string;
-  prefilters?: PreFilter[];
-}
-
-interface QueryResponse {
-  ids: string[];
-}
-
 export function ProductsListing() {
   const isLoading = useAppSelector(
     (state) => state.streams.streamsStatus === "pending"
@@ -131,8 +108,9 @@ export function ProductsListing() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <Link href={`/streams/${stream.id}/edit`}>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                        </Link>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
