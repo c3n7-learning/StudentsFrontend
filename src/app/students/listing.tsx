@@ -38,38 +38,38 @@ import AdminLayout from "@/components/shared/admin-layout";
 import { useEffect, useMemo, useState } from "react";
 import { debounce } from "lodash";
 import { store, useAppSelector } from "@/store/store";
-import { fetchStreams } from "@/store/streamSlice";
+import { fetchStudents } from "@/store/studentSlice";
 
 export function StudentsListing() {
   const isLoading = useAppSelector(
-    (state) => state.streams.streamsStatus === "pending"
+    (state) => state.students.studentsStatus === "pending"
   );
-  const streams = useAppSelector((state) => state.streams.streams);
+  const students = useAppSelector((state) => state.students.students);
 
   useEffect(() => {
-    store.dispatch(fetchStreams());
+    store.dispatch(fetchStudents());
   }, []);
 
   return (
     <AdminLayout
-      breadcrumbs={[{ href: "/streams", label: "Streams" }]}
+      breadcrumbs={[{ href: "/students", label: "Students" }]}
       className="gap-2 md:gap-3"
     >
       <div className="flex justify-between items-center">
         <div className="px-1">
-          <CardTitle>Streams</CardTitle>
+          <CardTitle>Students</CardTitle>
           <CardDescription className="hidden md:block">
-            Manage your class streams
+            Manage your students
           </CardDescription>
         </div>
         <div className="ml-auto flex items-center gap-2">
           {isLoading && <LoaderCircle className="animate-spin" />}
 
-          <Link href="/streams/-1/edit">
+          <Link href="/students/-1/edit">
             <Button size="sm" className="h-8 gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Streams
+                Add Student
               </span>
             </Button>
           </Link>
@@ -82,17 +82,31 @@ export function StudentsListing() {
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>First Name</TableHead>
+                <TableHead>Surname</TableHead>
+                <TableHead>Admission Number</TableHead>
+                <TableHead>Class Stream</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {streams.map((stream) => (
+              {students.map((stream) => (
                 <TableRow key={stream.id}>
                   <TableCell className="font-medium">{stream.id}</TableCell>
-                  <TableCell className="font-medium">{stream.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {stream.firstName}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {stream.surname}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {stream.admissionNumber}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {stream.classStream?.name ?? "-"}
+                  </TableCell>
 
                   <TableCell>
                     <DropdownMenu>
@@ -108,7 +122,7 @@ export function StudentsListing() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <Link href={`/streams/${stream.id}/edit`}>
+                        <Link href={`/students/${stream.id}/edit`}>
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                         </Link>
                       </DropdownMenuContent>

@@ -16,7 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:5267";
 export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
   async () => {
-    return await fetch(`${API_URL}/api/ClassStreams/`, {
+    return await fetch(`${API_URL}/api/Students/`, {
       headers: {
         Accept: "application/json",
       },
@@ -29,7 +29,7 @@ export const fetchStudents = createAsyncThunk(
 export const fetchStudentDetails = createAsyncThunk(
   "students/fetchStudentDetails",
   async ({ id }: { id: number }) => {
-    return await fetch(`${API_URL}/api/ClassStreams/${id}`, {
+    return await fetch(`${API_URL}/api/Students/${id}`, {
       headers: {
         Accept: "application/json",
       },
@@ -53,7 +53,7 @@ export type SaveClassStreamResponse = {
 export const saveStream = createAsyncThunk(
   "students/saveStream",
   async ({ id, name }: SaveClassStreamPayload, thunkApi) => {
-    let url = `${API_URL}/api/ClassStreams/`;
+    let url = `${API_URL}/api/Students/`;
     const body: SaveClassStreamPayload = { name };
     if (id) {
       url += `${id}`;

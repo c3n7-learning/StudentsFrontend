@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { store, useAppSelector } from "@/store/store";
 import { fetchStreamDetails, saveStream } from "@/store/streamSlice";
 
-export function CrudForm({ streamId }: { streamId: number }) {
+export function CrudForm({ studentId }: { studentId: number }) {
   const [name, setName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const isLoading = useAppSelector(
@@ -21,16 +21,16 @@ export function CrudForm({ streamId }: { streamId: number }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (streamId == -1) return;
+    if (studentId == -1) return;
 
-    store.dispatch(fetchStreamDetails({ id: streamId }));
-  }, [streamId]);
+    store.dispatch(fetchStreamDetails({ id: studentId }));
+  }, [studentId]);
 
   useEffect(() => {
-    if (streamId == -1) return;
+    if (studentId == -1) return;
 
     setName(streamDetails?.name ?? "");
-  }, [streamId, streamDetails]);
+  }, [studentId, streamDetails]);
 
   async function submit() {
     try {
@@ -38,7 +38,7 @@ export function CrudForm({ streamId }: { streamId: number }) {
 
       await store
         .dispatch(
-          saveStream({ id: streamId == -1 ? undefined : streamId, name })
+          saveStream({ id: studentId == -1 ? undefined : studentId, name })
         )
         .unwrap();
 
@@ -65,7 +65,7 @@ export function CrudForm({ streamId }: { streamId: number }) {
           </Button>
         </Link>
         <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-          {streamId == -1 ? "New Stream" : `Edit Stream #${streamId}`}
+          {studentId == -1 ? "New Stream" : `Edit Stream #${studentId}`}
         </h1>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
           {isLoading && <LoaderCircle className="animate-spin" />}
