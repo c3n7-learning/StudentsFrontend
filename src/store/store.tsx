@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { streamSlice } from "./streamSlice";
+import { studentSlice } from "./studentSlice";
 
 export const store = configureStore({
   reducer: {
     streams: streamSlice.reducer,
+    students: studentSlice.reducer,
   },
 });
 

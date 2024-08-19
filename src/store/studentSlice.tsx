@@ -1,35 +1,40 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ThunkStatus } from "./store";
+import { ClassStream } from "./streamSlice";
 
-export type ClassStream = {
+export type Student = {
   id?: number;
-  name: string;
+  firstName: string;
+  surname: string;
+  admissionNumber: string;
+  classStreamId: string;
+  classStream?: ClassStream;
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:5267";
 
-export const fetchStreams = createAsyncThunk(
-  "streams/fetchStreams",
+export const fetchStudents = createAsyncThunk(
+  "students/fetchStudents",
   async () => {
     return await fetch(`${API_URL}/api/ClassStreams/`, {
       headers: {
         Accept: "application/json",
       },
     }).then(async (response) => {
-      return (await response.json()) as Array<ClassStream>;
+      return (await response.json()) as Array<Student>;
     });
   }
 );
 
-export const fetchStreamDetails = createAsyncThunk(
-  "streams/fetchStreamDetails",
+export const fetchStudentDetails = createAsyncThunk(
+  "students/fetchStudentDetails",
   async ({ id }: { id: number }) => {
     return await fetch(`${API_URL}/api/ClassStreams/${id}`, {
       headers: {
         Accept: "application/json",
       },
     }).then(async (response) => {
-      return (await response.json()) as ClassStream;
+      return (await response.json()) as Student;
     });
   }
 );
@@ -46,7 +51,7 @@ export type SaveClassStreamResponse = {
 };
 
 export const saveStream = createAsyncThunk(
-  "streams/saveStream",
+  "students/saveStream",
   async ({ id, name }: SaveClassStreamPayload, thunkApi) => {
     let url = `${API_URL}/api/ClassStreams/`;
     const body: SaveClassStreamPayload = { name };
@@ -77,47 +82,47 @@ export const saveStream = createAsyncThunk(
   }
 );
 
-interface StreamSliceState {
-  streams: Array<ClassStream>;
-  streamsStatus: ThunkStatus;
+interface StudentSliceState {
+  students: Array<Student>;
+  studentsStatus: ThunkStatus;
 
-  streamDetails: ClassStream | null;
-  streamDetailsStatus: ThunkStatus;
+  studentDetails: Student | null;
+  studentDetailsStatus: ThunkStatus;
 }
 
-const initialState: StreamSliceState = {
-  streams: [],
-  streamsStatus: "idle",
+const initialState: StudentSliceState = {
+  students: [],
+  studentsStatus: "idle",
 
-  streamDetails: null,
-  streamDetailsStatus: "idle",
+  studentDetails: null,
+  studentDetailsStatus: "idle",
 };
 
-export const streamSlice = createSlice({
-  name: "streams",
+export const studentSlice = createSlice({
+  name: "students",
   initialState,
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(fetchStreams.pending, (state) => {
-      state.streamsStatus = "pending";
+    builder.addCase(fetchStudents.pending, (state) => {
+      state.studentsStatus = "pending";
     });
-    builder.addCase(fetchStreams.rejected, (state) => {
-      state.streamsStatus = "rejected";
+    builder.addCase(fetchStudents.rejected, (state) => {
+      state.studentsStatus = "rejected";
     });
-    builder.addCase(fetchStreams.fulfilled, (state, { payload }) => {
-      state.streamsStatus = "fulfilled";
-      state.streams = payload;
+    builder.addCase(fetchStudents.fulfilled, (state, { payload }) => {
+      state.studentsStatus = "fulfilled";
+      state.students = payload;
     });
 
-    builder.addCase(fetchStreamDetails.pending, (state) => {
-      state.streamDetailsStatus = "pending";
+    builder.addCase(fetchStudentDetails.pending, (state) => {
+      state.studentDetailsStatus = "pending";
     });
-    builder.addCase(fetchStreamDetails.rejected, (state) => {
-      state.streamDetailsStatus = "rejected";
+    builder.addCase(fetchStudentDetails.rejected, (state) => {
+      state.studentDetailsStatus = "rejected";
     });
-    builder.addCase(fetchStreamDetails.fulfilled, (state, { payload }) => {
-      state.streamDetailsStatus = "fulfilled";
-      state.streamDetails = payload;
+    builder.addCase(fetchStudentDetails.fulfilled, (state, { payload }) => {
+      state.studentDetailsStatus = "fulfilled";
+      state.studentDetails = payload;
     });
   },
 });
