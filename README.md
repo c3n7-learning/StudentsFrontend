@@ -20,5 +20,5 @@ npm run dev
 
 Now open
 
-- `http://localhost:3000/streams`
-- `http://localhost:3000/students`
+- http://localhost:3000/streams
+- http://localhost:3000/students
