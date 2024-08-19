@@ -22,12 +22,11 @@ import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { store } from "@/store/store";
+import { saveStream } from "@/store/streamSlice";
 
-export function CrudForm() {
+export function CrudForm({ streamId }: { streamId: number }) {
   const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const router = useRouter();
@@ -35,9 +34,10 @@ export function CrudForm() {
   async function submit() {
     try {
       setIsSubmitting(true);
-      // Send data to Firestore
 
-      router.push("/admin/products/");
+      await store.dispatch(saveStream({ name })).unwrap();
+
+      router.push("/streams/");
     } catch (error) {
       console.log("Error adding document: ", error);
     } finally {
@@ -53,20 +53,17 @@ export function CrudForm() {
       }}
     >
       <div className="flex items-center gap-4">
-        <Link href="/admin/products/">
+        <Link href="/streams/">
           <Button variant="outline" size="icon" className="h-7 w-7">
             <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>
           </Button>
         </Link>
         <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-          Pro Controller
+          {streamId == -1 ? "New Stream" : `Edit Stream #${streamId}`}
         </h1>
-        <Badge variant="outline" className="ml-auto sm:ml-0">
-          In stock
-        </Badge>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
-          <Link href="/admin/products/">
+          <Link href="/streams/">
             <Button variant="outline" size="sm">
               Discard
             </Button>
@@ -83,7 +80,7 @@ export function CrudForm() {
               <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
             )}
             <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Save Product
+              Save
             </span>
           </Button>
         </div>
@@ -93,10 +90,7 @@ export function CrudForm() {
         <div className="grid auto-rows-max items-start gap-4  lg:gap-8">
           <Card>
             <CardHeader>
-              <CardTitle>Product Details</CardTitle>
-              <CardDescription>
-                Lipsum dolor sit amet, consectetur adipiscing elit
-              </CardDescription>
+              <CardTitle>Stream Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6">
@@ -105,49 +99,10 @@ export function CrudForm() {
                   <Input
                     id="name"
                     type="text"
-                    placeholder="Enter product name"
+                    placeholder="Enter stream name"
                     className="w-full"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="grid gap-3">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger id="status" aria-label="Select status">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="archived">Archived</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-3">
-                    <Label htmlFor="price">Price</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      placeholder="Enter product price"
-                      className="w-full"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-3">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Enter product description"
-                    className="min-h-32"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
               </div>
@@ -159,7 +114,7 @@ export function CrudForm() {
         <Button variant="outline" size="sm">
           Discard
         </Button>
-        <Button size="sm">Save Product</Button>
+        <Button size="sm">Save</Button>
       </div>
     </form>
   );

@@ -21,6 +21,47 @@ export const fetchStreams = createAsyncThunk(
   }
 );
 
+export type SaveClassStreamPayload = {
+  id?: number;
+  name: string;
+};
+
+export type SaveClassStreamResponse = {
+  id?: number;
+  name?: string;
+  message?: string;
+};
+
+export const saveStream = createAsyncThunk(
+  "streams/saveStream",
+  async ({ id, name }: SaveClassStreamPayload, thunkApi) => {
+    let url = `${API_URL}/api/ClassStreams/`;
+    if (id) {
+      url += `${id}/`;
+    }
+    return await fetch(url, {
+      method: id ? "PUT" : "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name }),
+    }).then(async (response) => {
+      let result: SaveClassStreamResponse | null = null;
+      if (response.headers.get("content-type") === "application/json") {
+        result = (await response.json()) as SaveClassStreamResponse;
+      }
+
+      if (!response.ok) {
+        result ??= { message: "Operation Failed" };
+        return thunkApi.rejectWithValue(result);
+      }
+
+      return result;
+    });
+  }
+);
+
 interface StreamSliceState {
   streams: Array<ClassStream>;
   streamsStatus: ThunkStatus;

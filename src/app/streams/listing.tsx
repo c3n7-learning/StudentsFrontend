@@ -64,11 +64,6 @@ interface QueryResponse {
 }
 
 export function ProductsListing() {
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [filteredIds, setFilteredIds] = useState<string[]>([]);
-  const [query, setQuery] = useState<string>("");
-  const [productStatus, setProductStatus] = useState<string>("");
-
   const isLoading = useAppSelector(
     (state) => state.streams.streamsStatus === "pending"
   );
@@ -80,7 +75,7 @@ export function ProductsListing() {
 
   return (
     <AdminLayout
-      breadcrumbs={[{ href: "/admin/streams", label: "Streams" }]}
+      breadcrumbs={[{ href: "/streams", label: "Streams" }]}
       className="gap-2 md:gap-3"
     >
       <div className="flex justify-between items-center">
@@ -93,7 +88,7 @@ export function ProductsListing() {
         <div className="ml-auto flex items-center gap-2">
           {isLoading && <LoaderCircle className="animate-spin" />}
 
-          <Link href="/streams/edit">
+          <Link href="/streams/-1/edit">
             <Button size="sm" className="h-8 gap-1">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
