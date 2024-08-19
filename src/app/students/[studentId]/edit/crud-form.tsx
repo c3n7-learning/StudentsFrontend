@@ -8,29 +8,53 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { store, useAppSelector } from "@/store/store";
-import { fetchStreamDetails, saveStream } from "@/store/streamSlice";
+import { fetchStudentDetails, saveStudent } from "@/store/studentSlice";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { fetchStreams } from "@/store/streamSlice";
 
 export function CrudForm({ studentId }: { studentId: number }) {
-  const [name, setName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [surname, setSurname] = useState<string>("");
+  const [admissionNumber, setAdmissionNumber] = useState<string>("");
+  const [classStreamId, setClassStreamId] = useState<number>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const isLoading = useAppSelector(
-    (state) => state.streams.streamDetailsStatus === "pending"
+    (state) => state.students.studentDetailsStatus === "pending"
   );
-  const streamDetails = useAppSelector((state) => state.streams.streamDetails);
+  const studentDetails = useAppSelector(
+    (state) => state.students.studentDetails
+  );
+
+  const streams = useAppSelector((state) => state.streams.streams);
+  const isLoadingStreams = useAppSelector(
+    (state) => state.streams.streamsStatus === "pending"
+  );
+  useEffect(() => {
+    store.dispatch(fetchStreams());
+  }, []);
 
   const router = useRouter();
 
   useEffect(() => {
     if (studentId == -1) return;
 
-    store.dispatch(fetchStreamDetails({ id: studentId }));
+    store.dispatch(fetchStudentDetails({ id: studentId }));
   }, [studentId]);
 
   useEffect(() => {
-    if (studentId == -1) return;
+    if (studentId == -1 || !studentDetails) return;
 
-    setName(streamDetails?.name ?? "");
-  }, [studentId, streamDetails]);
+    setFirstName(studentDetails.firstName);
+    setSurname(studentDetails.surname);
+    setAdmissionNumber(studentDetails.admissionNumber);
+    setClassStreamId(studentDetails.classStreamId);
+  }, [studentId, studentDetails]);
 
   async function submit() {
     try {
@@ -38,11 +62,17 @@ export function CrudForm({ studentId }: { studentId: number }) {
 
       await store
         .dispatch(
-          saveStream({ id: studentId == -1 ? undefined : studentId, name })
+          saveStudent({
+            id: studentId == -1 ? undefined : studentId,
+            firstName,
+            surname,
+            admissionNumber,
+            classStreamId: classStreamId!,
+          })
         )
         .unwrap();
 
-      router.push("/streams/");
+      router.push("/students/");
     } catch (error) {
       console.log("Error adding document: ", error);
     } finally {
@@ -58,18 +88,18 @@ export function CrudForm({ studentId }: { studentId: number }) {
       }}
     >
       <div className="flex items-center gap-4">
-        <Link href="/streams/">
+        <Link href="/students/">
           <Button variant="outline" size="icon" className="h-7 w-7">
             <ChevronLeft className="h-4 w-4" />
             <span className="sr-only">Back</span>
           </Button>
         </Link>
         <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-          {studentId == -1 ? "New Stream" : `Edit Stream #${studentId}`}
+          {studentId == -1 ? "New Student" : `Edit Student #${studentId}`}
         </h1>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
           {isLoading && <LoaderCircle className="animate-spin" />}
-          <Link href="/streams/">
+          <Link href="/students/">
             <Button variant="outline" size="sm">
               Discard
             </Button>
@@ -96,20 +126,73 @@ export function CrudForm({ studentId }: { studentId: number }) {
         <div className="grid auto-rows-max items-start gap-4  lg:gap-8">
           <Card>
             <CardHeader>
-              <CardTitle>Stream Details</CardTitle>
+              <CardTitle>Student Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6">
+              <div className="grid md:grid-cols-2 gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <Input
-                    id="name"
+                    id="firstName"
                     type="text"
-                    placeholder="Enter stream name"
+                    placeholder="Enter First Name"
                     className="w-full"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                   />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="firstName">Surname</Label>
+                  <Input
+                    id="surname"
+                    type="text"
+                    placeholder="Enter Surname"
+                    className="w-full"
+                    value={surname}
+                    onChange={(e) => setSurname(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="firstName">Admission Number</Label>
+                  <Input
+                    id="admissionNumber"
+                    type="text"
+                    placeholder="Enter Admission Number"
+                    className="w-full"
+                    value={admissionNumber}
+                    onChange={(e) => setAdmissionNumber(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="classStreamId">Class Stream</Label>
+                  <div className="flex flex-row gap-2 items-center">
+                    {isLoadingStreams && (
+                      <LoaderCircle className="animate-spin" />
+                    )}
+                    <Select
+                      value={`${classStreamId ?? ""}`}
+                      onValueChange={(v) =>
+                        setClassStreamId(v ? Number.parseInt(v) : undefined)
+                      }
+                    >
+                      <SelectTrigger
+                        id="classStreamId"
+                        aria-label="Select stream"
+                      >
+                        <SelectValue placeholder="Select stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {streams?.map((stream) => (
+                          <SelectItem key={stream.id} value={`${stream.id}`}>
+                            {stream.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </CardContent>

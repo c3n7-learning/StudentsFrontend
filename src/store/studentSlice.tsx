@@ -7,7 +7,7 @@ export type Student = {
   firstName: string;
   surname: string;
   admissionNumber: string;
-  classStreamId: string;
+  classStreamId: number;
   classStream?: ClassStream;
 };
 
@@ -39,22 +39,42 @@ export const fetchStudentDetails = createAsyncThunk(
   }
 );
 
-export type SaveClassStreamPayload = {
+export type SaveStudentPayload = {
   id?: number;
-  name: string;
+  firstName: string;
+  surname: string;
+  admissionNumber: string;
+  classStreamId: number;
 };
 
 export type SaveClassStreamResponse = {
   id?: number;
-  name?: string;
+  firstName?: string;
+  surname?: string;
+  admissionNumber?: string;
+  classStreamId?: number;
   message?: string;
 };
 
-export const saveStream = createAsyncThunk(
-  "students/saveStream",
-  async ({ id, name }: SaveClassStreamPayload, thunkApi) => {
+export const saveStudent = createAsyncThunk(
+  "students/saveStudent",
+  async (
+    {
+      id,
+      firstName,
+      surname,
+      admissionNumber,
+      classStreamId,
+    }: SaveStudentPayload,
+    thunkApi
+  ) => {
     let url = `${API_URL}/api/Students/`;
-    const body: SaveClassStreamPayload = { name };
+    const body: SaveStudentPayload = {
+      firstName,
+      surname,
+      admissionNumber,
+      classStreamId,
+    };
     if (id) {
       url += `${id}`;
       body.id = id;
